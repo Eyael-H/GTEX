@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Define paths
+bam_dir="/mnt/LHDD1/GTEX_Hippocampus"
+mkdir -p logs counts
+
+# Define gene and TE annotation files
+gene_gtf="/mnt/data2/GTEX/TEcount_test/GTF_files/cleaned_gene_annotation.gtf"
+TE_gtf="/mnt/data2/GTEX/TEcount_test/GTF_files/GRCh38_GENCODE_rmsk_TE.gtf"
+
+# Define strand specificity of the sequencing library
+TETranscripts_strandess="no"
+
+# Define path to TEcount executable
+TEcount_path="/home/habtemar/tools/TEtranscripts/venv/bin/TEcount"
+
+# Loop through each BAM file and run TEcount directly
+for bam_file in "$bam_dir"/*.bam; do
+    bam_name=$(basename "$bam_file" .bam)
+    log_out="logs/${bam_name}.out"
+    log_err="logs/${bam_name}.err"
+
+    echo "Running TEcount for $bam_name..."
+
+    $TEcount_path \
+        --BAM "$bam_file" \
+        --GTF "$gene_gtf" \
+        --TE "$TE_gtf" \
+        --project "counts/${bam_name}" \
+        --mode multi \
+        --sortByPos \
+        --stranded "$TETranscripts_strandess" \
+        > "$log_out" 2> "$log_err" &
+done
+
+wait
+echo "All jobs finished!"
