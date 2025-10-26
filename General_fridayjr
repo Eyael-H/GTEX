@@ -6,5 +6,21 @@ ps -ef | grep job1 | grep -v grep
     #$#output
     #habtemar    8573    7978  3 19:44 pts/1    00:00:00 /bin/bash ./count_hippocampus.sh
 
-# to kill a sjob
+# to kill a job
 kill job1
+
+
+#####Install a parallelizing tool
+sudo apt install parallel
+        GNU parallel 20231122 (version installed on fridayjr)
+
+#To descide jobs that can run in parallel
+nproc (find how many cores)
+free -h (find available memory)
+        #run one single job and find the required resources 
+                #to know the resources required add (/usr/bin/time -v ) just before your command and will append the resources in your log file --eg below 
+                      nohup /usr/bin/time -v /home/habtemar/miniforge3/envs/Env/bin/TEcount --BAM /mnt/LHDD1/GTEX_Hippocampus/GTEX-117XS-0011-R1b-SM-GJ3PQ.Aligned.sortedByCoord.out.patched.md.bam --GTF /mnt/data2/GTEX/TEcount_test/GTF_files/cleaned_gene_annotation.gtf --TE /mnt/data2/GTEX/TEcount_test/GTF_files/GRCh38_GENCODE_rmsk_TE.gtf \
+  --project test/GTEX-117XS-0011-R1b-SM-GJ3PQ --mode multi --sortByPos --stranded no > test_GTEX-117XS-0011-R1b-SM-GJ3PQ.out 2> test_GTEX-117XS-0011-R1b-SM-GJ3PQ.err &
+
+    #Calculate how many can be run in parallel (be conservative)
+
