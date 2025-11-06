@@ -24,3 +24,11 @@ free -h (find available memory)
 
     #Calculate how many can be run in parallel (be conservative)
 
+#To check permission
+    ls -ld
+
+#Permission to read and write
+sudo chmod -R 777 File_name
+
+
+
