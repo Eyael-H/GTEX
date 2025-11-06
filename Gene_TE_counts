@@ -1,41 +1,46 @@
 #!/bin/bash
-set -e
 
-# Paths
-bam_dir="/mnt/LHDD1/GTEX_Hippocampus"
-BAM_LIST="$bam_dir/Hippocampus_255bamfiles.txt"
-LOG_DIR="logs"
-OUT_DIR="counts"
+# =========================================================
+# Run TEcount in parallel for BAM files in current directory
+# =========================================================
 
-# Create output directories
-mkdir -p "$LOG_DIR" "$OUT_DIR"
+# Number of parallel TEcount processes to run at once
+JOBS=10   # adjust depending on CPU and memory
 
-# Define Jobs to Run (set based on the resources: better to be conservative)
-JOBS=10
-
-# Annotation files 
+# Paths to annotation files
 gene_gtf="/mnt/data2/GTEX/TEcount_test/GTF_files/cleaned_gene_annotation.gtf"
 TE_gtf="/mnt/data2/GTEX/TEcount_test/GTF_files/GRCh38_GENCODE_rmsk_TE.gtf"
 
-#Define strandedness
-TETranscripts_strandess="no"
+# Strandness of the library
+stranded="no"
 
-# Path to TEcount
-TEcount="/home/habtemar/tools/TEtranscripts/venv/bin/TEcount"
+# Path to TEcount binary
+TEcount_path="/home/habtemar/tools/TEtranscripts/venv/bin/TEcount"
 
+# Output directories
+mkdir -p counts logs
 
+echo "Starting TEcount for BAM files in $(pwd)"
+echo "Running $JOBS parallel jobs"
 
-echo "Starting TEcount for all BAM files..."
-echo "Using $JOBS parallel jobs."
+# Run TEcount in parallel using xargs
+ls *.bam | xargs -P "$JOBS" -I {} bash -c '
+  bam_file="{}"
+  bam_name=$(basename "$bam_file" .bam)
+  echo "Processing $bam_name ..."
 
-# Run TEcount in parallel
-cat "$BAM_LIST" | parallel -j "$JOBS" --joblog "$LOG_DIR/parallel_joblog.txt" \
-'/usr/bin/time -v '"$TEcount"' \
-  --BAM '"$bam_dir"'/{} \
-  --GTF '"$gene_gtf"' \
-  --TE '"$TE_gtf"' \
-  --project '"$OUT_DIR"'/\{/.} \
-  --mode multi \
-  --sortByPos \
-  --stranded '"$TETranscripts_strandess"' \
-  > '"$LOG_DIR"'/\{/.}.out 2> '"$LOG_DIR"'/\{/.}.err'
+  '"$TEcount_path"' \
+    --BAM "$bam_file" \
+    --GTF "'"$gene_gtf"'" \
+    --TE "'"$TE_gtf"'" \
+    --project "counts/${bam_name}" \
+    --mode multi \
+    --sortByPos \
+    --stranded "'"$stranded"'" \
+    > "logs/${bam_name}.out" 2> "logs/${bam_name}.err"
+
+  echo "Done: $bam_name"
+'
+
+echo "All TEcount jobs finished!"
+
