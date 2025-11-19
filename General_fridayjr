@@ -1,5 +1,5 @@
 #To start a job on the background (gives outpot and log files for the job)
-nohup ./job1.sh > Log_nohup/job1.log 2>&1 &
+nohup ./job1.sh > logs/master.out 2>&1 &
 
 #To check on the job (the last part grep -v grep is optional; it is to remove a second output for the grep part - it sees it as a job too)
 ps -ef | grep job1 | grep -v grep
