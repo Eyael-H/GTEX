@@ -7,4 +7,8 @@
         tabix -p vcf GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz
 
 #Filter file using vcftools
+vcftools --gzvcf /mnt/data2/GTEX/Genotyping/GTEx_Analysis_2021-02-11_v9_WGS_VCF_files/Filtered/GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz --out Filtered_GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr --min-alleles 2 --max-alleles 2 --remove-indels --maf 0.01 --hwe .000001 --max-missing 0.9 --chr 1 --chr 2 --chr 3 --chr 4 --chr 5 --chr 6 --chr 7 --chr 8 --chr 9 --chr 10 --chr 11 --chr 12 --chr 13 --chr 14 --chr 15 --chr 16 --chr 17 --chr 18 --chr 19 --chr 20 --chr 21 --chr 22 --recode --recode-INFO-all
+
+    # compress filtered SNVs
+        bgzip -@ 10 Filtered_GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.recode.vcf
 
