@@ -1,1 +1,53 @@
-#Install bioconda
+####Install bioconda
+#Get Anaconds
+  $ wget https://github.com/conda-forge/miniforge/releases/download/25.9.1-0/Miniforge3-25.9.1-0-Linux-x86_64.sh
+  $ bash Miniforge3-25.9.1-0-Linux-x86_64.sh
+#Initialize conda
+   $/home/habtemar/miniforge3/bin/conda init bash
+#Restart terminl
+  $source ~/.bashrc
+
+#Check if conda is properly installed 
+  $conda --version
+        conda 25.9.1 (version installed)
+
+#add channlels
+  $conda config --add channels defaults
+  $conda config --add channels conda-forge
+  $conda config --set channel_priority strict
+#Confirm installed channels
+  $conda config --show channels
+            channels:
+              - bioconda
+              - conda-forge
+              - defaults
+
+#Install mamba (more efficient than conda)
+   $conda install -n base -c conda-forge mamba
+#Confirm installation for mamaba
+  $mamba --version
+          #2.3.3 -Current version
+#To initialize the current bash shell, run:
+    $ eval "$(mamba shell hook --shell bash)"
+#and then activate or deactivate with:
+    $ mamba activate
+#To automatically initialize all future (bash) shells, run:
+    $ mamba shell init --shell bash --root-prefix=~/.local/share/mamba
+
+
+
+###Install vcftools
+  $mamba create -n geno_vcf -c bioconda vcftools #the environment is geno_vcf
+#Activate environment
+  $conda activate geno_vcf
+#Confirm vcftools installation
+  $vcftools --help
+
+####Install other packages for genotype processing
+mamba install -c bioconda plink bcftools samtools
+
+
+
+
+
+
