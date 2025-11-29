@@ -1,0 +1,10 @@
+#Edit the vcf file to make compatable with vcftools
+    #create a maping txt file
+        echo -e "chr1\t1\nchr2\t2\nchr3\t3\nchr4\t4\nchr5\t5\nchr6\t6\nchr7\t7\nchr8\t8\nchr9\t9\nchr10\t10\nchr11\t11\nchr12\t12\nchr13\t13\nchr14\t14\nchr15\t15\nchr16\t16\nchr17\t17\nchr18\t18\nchr19\t19\nchr20\t20\nchr21\t21\nchr22\t22\nchrX\tX\nchrY\tY\nchrM\tMT" > chr_map.txt
+    #Rename chrs is the vcf file 
+        bcftools annotate --rename-chrs chr_map.txt /mnt/data2/GTEX/Genotyping/GTEx_Analysis_2021-02-11_v9_WGS_VCF_files/GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased.vcf.gz -Oz -o GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz 
+    #Index edited vcf file (alternatively you can use bcftools index)
+        tabix -p vcf GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz
+
+#Filter file using vcftools
+
