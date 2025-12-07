@@ -43,8 +43,34 @@
 #Confirm vcftools installation
   $vcftools --help
 
-####Install other packages for genotype processing
+##Install other packages for genotype processing
 mamba install -c bioconda plink bcftools samtools
+
+
+
+########Install R and R studios on the server (From: https://posit.co/download/rstudio-server/)
+#Install base R
+sudo apt-get install r-base
+
+#Install R-studios
+    #Install gdebi
+    sudo apt-get install gdebi-core
+    #Download the RStudio Server installer
+    wget https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2025.09.2-418-amd64.deb
+    #Install the package with gdebi
+    sudo gdebi rstudio-server-2025.09.2-418-amd64.deb
+    #Verify installation
+    sudo systemctl status rstudio-server
+    #Enable at boot
+    sudo systemctl enable rstudio-server
+
+#*Access RStudio from your browser*#
+http://<your-server-ip>:8787 (
+    #Check the server’s IP
+    hostname -I
+
+
+
 
 
 
