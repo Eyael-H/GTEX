@@ -6,9 +6,52 @@
     #Index edited vcf file (alternatively you can use bcftools index)
         tabix -p vcf GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz
 
-#Filter file using vcftools
-vcftools --gzvcf /mnt/data2/GTEX/Genotyping/GTEx_Analysis_2021-02-11_v9_WGS_VCF_files/Filtered/GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz --out Filtered_GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr --min-alleles 2 --max-alleles 2 --remove-indels --maf 0.01 --hwe .000001 --max-missing 0.9 --chr 1 --chr 2 --chr 3 --chr 4 --chr 5 --chr 6 --chr 7 --chr 8 --chr 9 --chr 10 --chr 11 --chr 12 --chr 13 --chr 14 --chr 15 --chr 16 --chr 17 --chr 18 --chr 19 --chr 20 --chr 21 --chr 22 --recode --recode-INFO-all
+##Filter VCF file (vcftools, bcftool and PLINK can be used) ##Plink used (vcftools could not handle the bigger file, bcftools does not calculate hwe)
+                    #Filter file using vcftools
+                    vcftools --gzvcf /mnt/data2/GTEX/Genotyping/GTEx_Analysis_2021-02-11_v9_WGS_VCF_files/Filtered/GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz --out Filtered_GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr --min-alleles 2 --max-alleles 2 --remove-indels --maf 0.01 --hwe .000001 --max-missing 0.9 --chr 1 --chr 2 --chr 3 --chr 4 --chr 5 --chr 6 --chr 7 --chr 8 --chr 9 --chr 10 --chr 11 --chr 12 --chr 13 --chr 14 --chr 15 --chr 16 --chr 17 --chr 18 --chr 19 --chr 20 --chr 21 --chr 22 --recode --recode-INFO-all
+                    
+                        # compress filtered SNVs
+                            bgzip -@ 10 Filtered_GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.recode.vcf
+                    
+#Filter using PLINK (file was too large for vcftools and --recode flag was turnicating)
+            #!/bin/bash
+            set -e
+            
+            # Input file
+            VCF="/mnt/data2/GTEX/Genotyping/GTEx_Analysis_2021-02-11_v9_WGS_VCF_files/Filtered/GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.vcf.gz"
+            
+            # Output prefix
+            OUT="Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22"
+            
+            echo "=== Step 1: Convert VCF to PLINK BED ==="
+            plink --vcf "$VCF" --double-id --allow-extra-chr --make-bed --out EUR_raw
+            
+            echo "=== Step 2: Keep autosomes 1–22 ==="
+            plink --bfile EUR_raw --chr 1-22 --make-bed --out EUR_auto
+            
+            echo "=== Step 3: Remove indels + keep only biallelic SNPs ==="
+            plink --bfile EUR_auto --snps-only just-acgt --biallelic-only strict --make-bed --out EUR_auto_snps
+            
+            echo "=== Step 4: Apply MAF, HWE, and missingness filters ===" ###(use --keep flag here to subset based on samples with tissue data *before filtering with MAF, since it changes based on the population present)
+            plink --bfile EUR_auto_snps --maf 0.01 --hwe 1e-6 midp --make-bed --out EUR_filtered
+            
+            echo "=== Step 5: Convert back to VCF (optional) ==="
+            plink --bfile EUR_filtered --recode vcf bgz --out "$OUT"
+            
+            echo "=== Indexing VCF with tabix ==="
+            tabix -p vcf "${OUT}.vcf.gz"
 
-    # compress filtered SNVs
-        bgzip -@ 10 Filtered_GTEx_Analysis_2021-02-11_v9_WholeGenomeSeq_944Indiv_Analysis_Freeze.SHAPEIT2_phased_noChr.recode.vcf
+##Run Genotype processing
+        # Prune the filtered genotype data
+        plink --vcf Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out Plink/Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22_pruned
+        
+        # Run PCA analysis with Plink, on pruned data
+        plink --vcf Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract Plink/Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22_pruned.prune.in --pca var-wts --out Plink/Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22_pca
+        
+        # Make plink bed files using the filtered genotype data
+        plink --vcf Filtered_GTEx_Analysis_BOTH_SEXES_chr1-22.vcf.gz --set-missing-var-ids @:# --keep-allele-order --make-bed --out Plink/Filtered_GTEx_Analysis_BOTH_SEXES.recode.plink
 
+
+        
+                    
+           
