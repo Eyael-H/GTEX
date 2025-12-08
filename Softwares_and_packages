@@ -65,9 +65,9 @@ sudo apt-get install r-base
     sudo systemctl enable rstudio-server
 
 #*Access RStudio from your browser*#
-http://<your-server-ip>:8787 (
+http://<your-server-ip>:8787 (http://10.136.170.247:8787)
     #Check the server’s IP
-    hostname -I
+    hostname -I #10.136.170.247
 
 
 
