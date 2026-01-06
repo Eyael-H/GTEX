@@ -33,5 +33,9 @@ free -h (find available memory)
 #Permission to read and write
 sudo chmod -R 777 File_name
 
+##To check (list) the mounted drives on a server
+    lsblk #list with memory
+    mount -l #details
+
 
 
